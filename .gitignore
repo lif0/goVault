@@ -26,3 +26,7 @@ go.work.sum
 
 # macOS
 .DS_Store
+
+# goVault
+goVault.log
+goVault-server

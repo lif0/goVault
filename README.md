@@ -10,7 +10,7 @@
 
 
 ## About DB
-**goVault**  is designed to provide quick and efficient access to data. Built with simplicity and performance in mind, goVault is perfect for applications that demand speed and low latency.
+**goVault**  is designed to provide quick and efficient access to data. Built with simplicity and performance in mind, that is perfect for applications that demand speed and low latency.
 
 ## Features
 

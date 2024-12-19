@@ -32,7 +32,7 @@ type FSM struct {
 	out *Query
 }
 
-func NewFSM(rawQuery string) FSM {
+func newFSM(rawQuery string) FSM {
 	if isValidQuerySyntax(rawQuery) {
 		return FSM{state: BEGIN, in: strings.Fields(*formatQueryRaw(&rawQuery))}
 	}
@@ -40,7 +40,7 @@ func NewFSM(rawQuery string) FSM {
 	return FSM{state: FINISH, err: ErrQueryUnknowCommand}
 }
 
-func (fsm *FSM) Next() {
+func (fsm *FSM) next() {
 	switch fsm.state {
 	case BEGIN:
 		fsm.parseCmd()
