@@ -1,3 +1,4 @@
+//go:generate mockgen -destination ./../mocks/deps.go -package ${GOPACKAGE}_mock . Logger
 package internal
 
 import (

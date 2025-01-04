@@ -1,3 +1,4 @@
+//go:generate mockgen -destination ./../../../mocks/core/vault/contract.go -package ${GOPACKAGE}_mock . Vault
 package vault
 
 import "context"

@@ -46,9 +46,10 @@ func (d *Database) HandleQuery(ctx context.Context, queryStr string) string {
 		return d.handleDelQuery(ctx, q)
 	}
 
-	d.logger.Error(fmt.Sprintf("compute layer is incorrect: command_id %v", q.CommandID))
+	msg := fmt.Sprintf("compute layer is incorrect: command_id %v", q.CommandID)
+	d.logger.Error(msg)
 
-	return MsgDBInternalError
+	return msg
 }
 
 func (d *Database) handleSetQuery(ctx context.Context, query *query.Query) string {

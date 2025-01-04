@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -45,10 +46,11 @@ func CreateLogger(cfg *configuration.LoggingConfig) (internal.Logger, error) {
 		}
 
 		if cfg.Output != "" {
-			err := createDirIfNeeded(cfg.Output)
+			err := createParentDirIfNeeded(cfg.Output)
 			if err != nil {
 				return nil, fmt.Errorf("failed create dir: %s", cfg.Output)
 			}
+
 			output = cfg.Output
 		}
 	}
@@ -62,10 +64,14 @@ func CreateLogger(cfg *configuration.LoggingConfig) (internal.Logger, error) {
 	return loggerCfg.Build()
 }
 
-func createDirIfNeeded(path string) error {
-	err := os.MkdirAll(path, os.ModePerm)
-	if err != nil {
-		return fmt.Errorf("failed to create directories: %v", err)
+func createParentDirIfNeeded(filePath string) error {
+	parentDir := filepath.Dir(filePath)
+
+	if parentDir != "." {
+		err := os.MkdirAll(parentDir, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("failed to create parent directories for %s: %v", filePath, err)
+		}
 	}
 
 	return nil

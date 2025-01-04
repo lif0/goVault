@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
+	"goVault/internal"
 	"goVault/internal/configuration"
 )
 
@@ -16,7 +17,7 @@ func TestCreateNetwork(t *testing.T) {
 
 	tests := map[string]struct {
 		cfg    *configuration.NetworkConfig
-		logger *zap.Logger
+		logger internal.Logger
 
 		expectedErr    error
 		expectedNilObj bool
@@ -51,7 +52,7 @@ func TestCreateNetwork(t *testing.T) {
 			cfg: &configuration.NetworkConfig{
 				MaxMessageSize: "2incorrect",
 			},
-			expectedErr:    errors.New("incorrect max message size"),
+			expectedErr:    errors.New("incorrect max message digital storage"),
 			expectedNilObj: true,
 		},
 	}

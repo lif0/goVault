@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
+	"goVault/internal"
 	"goVault/internal/configuration"
 )
 
@@ -15,11 +16,12 @@ func TestCreateEngine(t *testing.T) {
 
 	tests := map[string]struct {
 		cfg            *configuration.EngineConfig
-		logger         *zap.Logger
+		logger         internal.Logger
 		expectedErr    error
 		expectedNilObj bool
 	}{
 		"create engine without logger": {
+			logger:         nil,
 			expectedErr:    errors.New("logger is invalid"),
 			expectedNilObj: true,
 		},
