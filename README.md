@@ -1,6 +1,10 @@
 <div align="center">
 <img src=".github/assets/goVault_poster_round.png" > 
 <h2 align="center">✨Blazing-fast in-memory database written in Go✨</h2>
+
+
+[![license](https://img.shields.io/github/license/lif0/goVault.svg?style=flat&logo=github&labelColor=rgb(64%2C70%2C78))](https://github.com/lif0/goVault/blob/main/LICENSE) [![Coverage Status](https://coveralls.io/repos/github/lif0/goVault/badge.svg?branch=main)](https://coveralls.io/github/lif0/goVault?branch=main)
+
 <h3 align="center">Please leave a ⭐ as motivation if you liked the lib 😄
 <br>🌪️Currently a WIP and in Active development.</h3>
 
