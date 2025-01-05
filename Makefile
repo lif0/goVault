@@ -11,7 +11,7 @@ run-server: build-server
 	./${SERVER_APP_NAME}
 
 run-server-with-config: build-server
-	CONFIG_FILE_NAME=config.yml ./${SERVER_APP_NAME}
+	CONFIG_PATH=config.yml ./${SERVER_APP_NAME}
 
 run-cli: build-cli
 	./${CLI_APP_NAME} $(ARGS)

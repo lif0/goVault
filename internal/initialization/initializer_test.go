@@ -50,6 +50,16 @@ func TestInitializerCases(t *testing.T) {
 			expectedErr:    errors.New("failed to initialize logger: logging level is incorrect"),
 			expectedNilObj: true,
 		},
+		"logger with stdout": {
+			cfg: &configuration.Config{
+				Logging: &configuration.LoggingConfig{
+					Level:  "-100",
+					Stdout: false,
+				},
+			},
+			expectedErr:    errors.New("failed to initialize logger: logging level is incorrect"),
+			expectedNilObj: true,
+		},
 		"broken engine": {
 			cfg: &configuration.Config{
 				Engine: &configuration.EngineConfig{

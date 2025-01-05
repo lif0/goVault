@@ -35,7 +35,31 @@
 
 ### Installation
 
-//TODO
+You can pull the Docker image directly from Docker Hub and start using goVault immediately:
+
+1. Pull the Docker image:
+```
+docker pull lif0/govault:latest
+```
+
+2. Create a `config.yaml` file with your custom configuration. Example:
+```yaml
+engine:
+  max_threads: 4
+network:
+  address: ":7777"
+logging:
+  level: "debug"
+  output: "goVault/output.log"
+  stdout: false
+```
+
+3. Run the container:
+```
+docker run -p 8080:{port-from-config} lif0/govault:latest
+```
+
+4. Now your goVault instance is running and ready to use on ```localhost:{port-from-config}```.
 
 ### Usage
 
@@ -66,7 +90,7 @@ digit       = "0"  | ... | "9"
 - **DEL**: Delete a key-value pair.
   ```
   DEL key
-  ```
+  ```  
 
 ## Contributing
 

@@ -12,7 +12,7 @@
             "env": {
                 "GO_ENV": "development"
             },
-            "args": []
+            "args": ["-address=127.0.0.1:8080"]
         },
         {
             "name": "Debug Server",

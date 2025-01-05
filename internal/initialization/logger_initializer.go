@@ -55,10 +55,15 @@ func CreateLogger(cfg *configuration.LoggingConfig) (internal.Logger, error) {
 		}
 	}
 
-	loggerCfg := zap.Config{
-		Encoding:    defaultEncoding,
-		Level:       zap.NewAtomicLevelAt(level),
-		OutputPaths: []string{output},
+	loggerCfg := zap.NewProductionConfig()
+	loggerCfg.Encoding = defaultEncoding
+	loggerCfg.Level = zap.NewAtomicLevelAt(level)
+	loggerCfg.OutputPaths = []string{output}
+	loggerCfg.EncoderConfig.TimeKey = "time"
+	loggerCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	if cfg != nil && cfg.Stdout {
+		loggerCfg.OutputPaths = append(loggerCfg.OutputPaths, "stdout")
 	}
 
 	return loggerCfg.Build()

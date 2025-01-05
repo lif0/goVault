@@ -29,6 +29,7 @@ type NetworkConfig struct {
 type LoggingConfig struct {
 	Level  string `yaml:"level"`
 	Output string `yaml:"output"`
+	Stdout bool   `yaml:"stdout"`
 }
 
 func Load(reader io.Reader) (*Config, error) {

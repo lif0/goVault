@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"os/signal"
@@ -13,7 +14,7 @@ import (
 )
 
 var (
-	ConfigFileName = os.Getenv("CONFIG_FILE_NAME")
+	ConfigPath = os.Getenv("CONFIG_PATH")
 )
 
 func main() {
@@ -21,6 +22,14 @@ func main() {
 	defer stop()
 
 	cfg := getServerConfiguration()
+
+	if cfg == nil {
+		log.Default().Println("Config is empty")
+	} else {
+		json, _ := json.MarshalIndent(cfg, "", "  ")
+		log.Default().Printf("Config:\n%s\n", string(json))
+	}
+
 	initializer, err := initialization.NewInitializer(cfg)
 	if err != nil {
 		log.Fatal(err)
@@ -33,8 +42,8 @@ func main() {
 
 func getServerConfiguration() *configuration.Config {
 	cfg := &configuration.Config{}
-	if ConfigFileName != "" {
-		data, err := os.ReadFile(ConfigFileName)
+	if ConfigPath != "" {
+		data, err := os.ReadFile(ConfigPath)
 		if err != nil {
 			log.Fatal(err)
 		}

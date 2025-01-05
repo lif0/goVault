@@ -84,15 +84,15 @@ func (fsm *FSM) next() {
 func (fsm *FSM) parseCmd() bool {
 	var query Query
 
-	switch fsm.in[0] {
-	case "SET":
+	switch strings.ToLower(fsm.in[0]) {
+	case "set":
 		fsm.state = CmdSetState
 		query = NewQuery(SET)
 
-	case "GET":
+	case "get":
 		fsm.state = CmdGetState
 		query = NewQuery(GET)
-	case "DEL":
+	case "del":
 		fsm.state = CmdDelState
 		query = NewQuery(DEL)
 	default:

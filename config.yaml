@@ -1,10 +1,11 @@
 engine:
   type: "in_memory"
 network:
-  address: "127.0.0.1:7777"
+  address: ":7777"
   max_connections: 100
   max_message_size: "4KB"
   idle_timeout: 5m
 logging:
   level: "info"
-  output: "/log/goVault/output.log"
+  output: "/goVault/output.log"
+  stdout: true
