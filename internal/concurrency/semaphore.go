@@ -4,7 +4,7 @@ type Semaphore struct {
 	tickets chan struct{}
 }
 
-func NewSemaphore(ticketsNumber int) Semaphore {
+func NewSemaphore(ticketsNumber uint) Semaphore {
 	return Semaphore{
 		tickets: make(chan struct{}, ticketsNumber),
 	}

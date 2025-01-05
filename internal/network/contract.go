@@ -18,7 +18,7 @@ type TCPServer struct {
 
 	idleTimeout    time.Duration
 	bufferSize     int
-	maxConnections int
+	maxConnections uint
 
 	logger internal.Logger
 }

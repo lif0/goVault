@@ -1,10 +1,19 @@
 <div align="center">
 <img src=".github/assets/goVault_poster_round.png" > 
-<h2 align="center">✨Blazing-fast in-memory database written in Go✨
+<h2 align="center">✨Blazing-fast in-memory database written in Go✨</h2>
 
-[![license](https://img.shields.io/github/license/lif0/goVault.svg?style=flat&logo=github&labelColor=rgb(64%2C70%2C78))](https://github.com/lif0/goVault/blob/main/LICENSE) [![Coverage Status](https://coveralls.io/repos/github/lif0/goVault/badge.svg?branch=main)](https://coveralls.io/github/lif0/goVault?branch=main)
-</h2>
-<h3 align="center">Please leave a ⭐ as motivation if you liked the lib 😄
+<p align="center">
+<img src="https://github.com/lif0/goVault/actions/workflows/coverallsapp.yml/badge.svg"/>
+<img src="https://goreportcard.com/badge/github.com/lif0/goVault" />
+<a href="https://coveralls.io/github/lif0/goVault" >
+    <img src="https://coveralls.io/repos/github/lif0/goVault/badge.svg?branch=main"/>
+</a>
+<a href="https://github.com/lif0/goVault/blob/main/LICENSE">
+  <img src="https://img.shields.io/github/license/lif0/goVault.svg?logo=github&labelColor=rgb(64%2C70%2C78" />
+</a>
+</p>
+
+<h3 align="center">Please leave a ⭐ as motivation if you liked the DB 😄
 <br>🌪️Currently a WIP and in Active development.</h3>
 
 <h>If you have feature request feel free to open an [Issue](https://github.com/lif0/goVault/issues/new/choose)</h4>
