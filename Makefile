@@ -19,5 +19,5 @@ run-cli: build-cli
 test:
 	go test ./...
 
-test_coverage:
-	go test ./... -coverprofile=coverage.out && go tool cover -html=coverage.out
+test_cover:
+	go test ./internal/... -coverprofile=coverage.out && go tool cover -html=coverage.out

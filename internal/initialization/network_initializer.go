@@ -11,7 +11,7 @@ import (
 
 const defaultServerAddress = ":3231"
 
-func CreateNetwork(cfg *configuration.NetworkConfig, logger internal.Logger) (*network.TCPServer, error) {
+func CreateNetwork(cfg *configuration.NetworkConfig, logger internal.Logger) (network.TCPServer, error) {
 	if logger == nil {
 		return nil, errors.New("logger is invalid")
 	}

@@ -15,7 +15,7 @@ import (
 	"goVault/internal/concurrency"
 )
 
-func NewTCPServer(address string, l internal.Logger, options ...TCPServerOption) (*TCPServer, error) {
+func NewTCPServer(address string, l internal.Logger, options ...TCPServerOption) (TCPServer, error) {
 	if l == nil {
 		return nil, errors.New("logger is invalid")
 	}
@@ -25,7 +25,7 @@ func NewTCPServer(address string, l internal.Logger, options ...TCPServerOption)
 		return nil, fmt.Errorf("error starting server: %v", err)
 	}
 
-	server := &TCPServer{
+	server := &server{
 		listener: listener,
 		logger:   l,
 	}
@@ -44,7 +44,7 @@ func NewTCPServer(address string, l internal.Logger, options ...TCPServerOption)
 	return server, nil
 }
 
-func (s *TCPServer) HandleQueries(ctx context.Context, handler TCPHandler) {
+func (s *server) HandleQueries(ctx context.Context, handler TCPHandler) {
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
@@ -76,7 +76,7 @@ func (s *TCPServer) HandleQueries(ctx context.Context, handler TCPHandler) {
 	wg.Wait()
 }
 
-func (s *TCPServer) handleConnection(ctx context.Context, connection net.Conn, handler TCPHandler) {
+func (s *server) handleConnection(ctx context.Context, connection net.Conn, handler TCPHandler) {
 	defer func() {
 		if v := recover(); v != nil {
 			s.logger.Error("captured panic", zap.Any("panic", v))

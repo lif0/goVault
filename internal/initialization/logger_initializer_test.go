@@ -13,7 +13,13 @@ import (
 
 func cleanUp(cfg *configuration.LoggingConfig) {
 	if cfg == nil {
-		_ = os.Remove(defaultOutputPath)
+		parentDir := filepath.Dir(defaultOutputPath)
+
+		if parentDir != "." {
+
+		} else {
+			_ = os.Remove(defaultOutputPath)
+		}
 	} else {
 		parentDir := filepath.Dir(cfg.Output)
 
@@ -45,6 +51,7 @@ func TestCreateLogger(t *testing.T) {
 			cfg: &configuration.LoggingConfig{
 				Level:  debugLevel,
 				Output: "test.log",
+				Stdout: true,
 			},
 			expectedErr: nil,
 		},
@@ -52,6 +59,7 @@ func TestCreateLogger(t *testing.T) {
 			cfg: &configuration.LoggingConfig{
 				Level:  debugLevel,
 				Output: "logs/logs.log",
+				Stdout: true,
 			},
 			expectedErr: nil,
 		},

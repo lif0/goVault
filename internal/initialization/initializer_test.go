@@ -12,7 +12,7 @@ import (
 	"goVault/internal/configuration"
 )
 
-func TestInitializer(t *testing.T) {
+func TestInitializerAndDatabase(t *testing.T) {
 	t.Parallel()
 
 	initializer, err := NewInitializer(&configuration.Config{
@@ -27,6 +27,8 @@ func TestInitializer(t *testing.T) {
 
 	err = initializer.StartDatabase(ctx)
 	require.NoError(t, err)
+
+	cleanUp(nil) // remove log-file
 }
 
 func TestInitializerCases(t *testing.T) {
@@ -92,6 +94,8 @@ func TestInitializerCases(t *testing.T) {
 			} else {
 				assert.NotNil(t, initializer)
 			}
+
+			cleanUp(nil) // remove log-file
 		})
 	}
 }

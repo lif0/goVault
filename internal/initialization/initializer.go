@@ -19,7 +19,7 @@ import (
 type Initializer struct {
 	engine engine.Engine
 	logger internal.Logger
-	server *network.TCPServer
+	server network.TCPServer
 }
 
 func NewInitializer(cfg *configuration.Config) (*Initializer, error) {

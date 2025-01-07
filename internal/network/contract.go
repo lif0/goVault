@@ -1,3 +1,5 @@
+//go:generate mockgen -destination=./../../mocks/net/conn.go -package net_mock net Conn,Listener,Addr
+//go:generate mockgen -destination ./../../mocks/network/contract.go -package ${GOPACKAGE}_mock . TCPServer
 package network
 
 import (
@@ -10,9 +12,9 @@ import (
 )
 
 type TCPHandler = func(context.Context, []byte) []byte
-type TCPServerOption func(*TCPServer)
+type TCPServerOption func(*server)
 
-type TCPServer struct {
+type server struct {
 	listener  net.Listener
 	semaphore concurrency.Semaphore
 
@@ -21,4 +23,8 @@ type TCPServer struct {
 	maxConnections uint
 
 	logger internal.Logger
+}
+
+type TCPServer interface {
+	HandleQueries(ctx context.Context, handler TCPHandler)
 }
