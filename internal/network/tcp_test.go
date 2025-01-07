@@ -18,6 +18,7 @@ import (
 )
 
 func TestNewTCPServer(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -88,26 +89,33 @@ func Test_HandleQueries(t *testing.T) {
 				}
 
 				// Setup mocks for listener
-				mockListener.EXPECT().Accept().Return(mockConn, nil).AnyTimes()
-				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).AnyTimes()
-				mockListener.EXPECT().Close().Return(nil).AnyTimes()
+				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)
+				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
+				mockListener.EXPECT().Close().Return(nil).Times(1)
+
+				// Setup mocks for net.Addr
+				mockAddr := net_mock.NewMockAddr(ctrl)
+				mockAddr.EXPECT().String().Return("127.0.0.1:12345").Times(1)
 
 				// Setup mocks for connection
 				mockConn.EXPECT().Read(gomock.Any()).DoAndReturn(func(b []byte) (int, error) {
 					copy(b, []byte("request"))
 					return len("request"), nil
-				}).AnyTimes()
-				mockConn.EXPECT().Write([]byte("response")).Return(len("response"), nil).AnyTimes()
-				mockConn.EXPECT().Close().Return(nil).AnyTimes()
+				}).Times(1)
+				mockConn.EXPECT().RemoteAddr().Return(mockAddr).Times(1)
+				mockConn.EXPECT().Write([]byte("response")).Return(len("response"), nil).Times(1)
+				mockConn.EXPECT().Close().Return(nil).Times(1)
 
-				// Setup mockgs for logger
-				mockLogger.EXPECT().Error(gomock.Any(), gomock.Any()).Times(0)
+				// Setup mocks for finish
+				// second read will be end with error because i want break infinity cycle from handleConnection
+				mockConn.EXPECT().Read(gomock.Any()).Return(0, errors.New("error for exit")).Times(1)
+				mockLogger.EXPECT().Warn(gomock.Any(), gomock.Any()).Times(1)
 
 				return s, mockConn
 			},
 		},
 		{
-			name: "Accept returns net.ErrClosed error",
+			name: "listener.Accept returns some error",
 			setupMocks: func() (*server, net.Conn) {
 				mockLogger := internal_mock.NewMockLogger(ctrl)
 				mockListener := net_mock.NewMockListener(ctrl)
@@ -121,23 +129,18 @@ func Test_HandleQueries(t *testing.T) {
 				}
 
 				// Setup mocks for listener
-				mockListener.EXPECT().Accept().Return(nil, errors.New("some error")).AnyTimes()
-				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).AnyTimes()
-				mockListener.EXPECT().Close().Return(nil).AnyTimes()
+				mockListener.EXPECT().Accept().Return(nil, errors.New("some error")).Times(1)
+				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
+				mockListener.EXPECT().Close().Return(nil).Times(1)
 
-				// Setup mocks for connection
-				mockConn.EXPECT().Read(gomock.Any()).AnyTimes()
-				mockConn.EXPECT().Write(gomock.Any()).AnyTimes()
-				mockConn.EXPECT().Close().AnyTimes()
-
-				// Setup mockgs for logger
-				mockLogger.EXPECT().Error(gomock.Any(), gomock.Any()).AnyTimes()
+				// Setup mocks for logger
+				mockLogger.EXPECT().Error(gomock.Any(), gomock.Any()).Times(1)
 
 				return s, mockConn
 			},
 		},
 		{
-			name: "Accept returns some error",
+			name: "listener.Accept returns net.ErrClosed error",
 			setupMocks: func() (*server, net.Conn) {
 				mockLogger := internal_mock.NewMockLogger(ctrl)
 				mockListener := net_mock.NewMockListener(ctrl)
@@ -147,20 +150,12 @@ func Test_HandleQueries(t *testing.T) {
 					logger:     mockLogger,
 					listener:   mockListener,
 					bufferSize: 1024,
-					semaphore:  concurrency.NewSemaphore(2),
+					semaphore:  concurrency.NewSemaphore(1),
 				}
 
 				// Setup mocks for listener
-				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).AnyTimes()
-				mockListener.EXPECT().Close().Return(nil).AnyTimes()
-
-				// Setup mocks for connection
-				mockConn.EXPECT().Read(gomock.Any()).AnyTimes()
-				mockConn.EXPECT().Write(gomock.Any()).AnyTimes()
-				mockConn.EXPECT().Close().AnyTimes()
-
-				// Setup mockgs for logger
-				mockLogger.EXPECT().Warn(gomock.Any(), gomock.Any()).AnyTimes()
+				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
+				mockListener.EXPECT().Close().Return(nil).Times(1)
 
 				return s, mockConn
 			},
@@ -181,22 +176,22 @@ func Test_HandleQueries(t *testing.T) {
 				}
 
 				// Setup mocks for listener
-				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)      // First Accept returns connection
-				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1) // Then listener closes
-				mockListener.EXPECT().Close().Return(nil).AnyTimes()
+				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)
+				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
+				mockListener.EXPECT().Close().Return(nil).Times(1)
 
 				// Setup mocks for connection
-				mockConn.EXPECT().SetReadDeadline(gomock.Any()).Return(errors.New("some error")).Times(1) // Force error
+				mockConn.EXPECT().SetReadDeadline(gomock.Any()).Return(errors.New("some error")).Times(1)
 				mockConn.EXPECT().Close().Return(nil).Times(1)
 
-				// Setup mockgs for logger
+				// Setup mocks for logger
 				mockLogger.EXPECT().Warn("failed to set read deadline", gomock.Any()).Times(1)
 
 				return s, mockConn
 			},
 		},
 		{
-			name: "Conn.Read count equal buffer size error",
+			name: "conn.Read count equal buffer size error",
 			setupMocks: func() (*server, net.Conn) {
 				mockLogger := internal_mock.NewMockLogger(ctrl)
 				mockListener := net_mock.NewMockListener(ctrl)
@@ -211,9 +206,9 @@ func Test_HandleQueries(t *testing.T) {
 				}
 
 				// Setup mocks for listener
-				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)      // First Accept returns connection
-				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1) // Second Accept ends the loop
-				mockListener.EXPECT().Close().Return(nil).AnyTimes()
+				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)
+				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
+				mockListener.EXPECT().Close().Return(nil).Times(1)
 
 				// Setup mocks for connection
 				mockConn.EXPECT().Read(gomock.Any()).DoAndReturn(func(b []byte) (int, error) {
@@ -221,7 +216,7 @@ func Test_HandleQueries(t *testing.T) {
 				}).Times(1)
 				mockConn.EXPECT().Close().Return(nil).Times(1)
 
-				// Setup mockgs for logger
+				// Setup mocks for logger
 				mockLogger.EXPECT().Warn("small buffer size", zap.Int("buffer_size", 1024)).Times(1)
 
 				return s, mockConn
@@ -245,16 +240,15 @@ func Test_HandleQueries(t *testing.T) {
 				// Setup mocks for listener
 				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)
 				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
-				mockListener.EXPECT().Close().Return(nil).AnyTimes()
+				mockListener.EXPECT().Close().Return(nil).Times(1)
 
 				// Setup mocks for connection
 				mockConn.EXPECT().SetReadDeadline(gomock.Any()).Return(nil).Times(1)
 				mockConn.EXPECT().SetWriteDeadline(gomock.Any()).Return(errors.New("write deadline error")).Times(1)
-				mockConn.EXPECT().Read(gomock.Any()).AnyTimes()
-				mockConn.EXPECT().Write(gomock.Any()).AnyTimes()
-				mockConn.EXPECT().Close().AnyTimes()
+				mockConn.EXPECT().Read(gomock.Any()).Times(1)
+				mockConn.EXPECT().Close().Times(1)
 
-				// Setup mockgs for logger
+				// Setup mocks for logger
 				mockLogger.EXPECT().Warn("failed to set read deadline", zap.Error(errors.New("write deadline error"))).Times(1)
 
 				return s, mockConn
@@ -277,19 +271,19 @@ func Test_HandleQueries(t *testing.T) {
 				// Setup mocks for listener
 				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)
 				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
-				mockListener.EXPECT().Close().Return(nil).AnyTimes()
+				mockListener.EXPECT().Close().Return(nil).Times(1)
 
 				// Setup mocks for net.Addr
 				mockAddr := net_mock.NewMockAddr(ctrl)
 				mockAddr.EXPECT().String().Return("127.0.0.1:12345").Times(1)
 
 				// Setup mocks for connection
-				mockConn.EXPECT().Read(gomock.Any()).AnyTimes()
+				mockConn.EXPECT().Read(gomock.Any()).Times(1)
 				mockConn.EXPECT().Write(gomock.Any()).Return(0, errors.New("write error")).Times(1)
 				mockConn.EXPECT().RemoteAddr().Return(mockAddr).Times(1)
 				mockConn.EXPECT().Close().Return(nil).Times(1)
 
-				// Setup mockgs for logger
+				// Setup mocks for logger
 				mockLogger.EXPECT().Warn(
 					"failed to write data",
 					zap.String("address", "127.0.0.1:12345"),
@@ -299,10 +293,43 @@ func Test_HandleQueries(t *testing.T) {
 				return s, mockConn
 			},
 		},
+		{
+			name: "conn.Close returns an error",
+			setupMocks: func() (*server, net.Conn) {
+				mockLogger := internal_mock.NewMockLogger(ctrl)
+				mockListener := net_mock.NewMockListener(ctrl)
+				mockConn := net_mock.NewMockConn(ctrl)
+
+				s := &server{
+					logger:      mockLogger,
+					listener:    mockListener,
+					bufferSize:  1024,
+					semaphore:   concurrency.NewSemaphore(1),
+					idleTimeout: time.Millisecond,
+				}
+
+				// Setup mocks for listener
+				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)
+				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
+				mockListener.EXPECT().Close().Return(nil).Times(1)
+
+				// Setup mocks for connection
+				mockConn.EXPECT().SetReadDeadline(gomock.Any()).Return(errors.New("some error")).Times(1) // break of cycle and move to defer
+				mockConn.EXPECT().Close().Return(errors.New("connection close error")).Times(1)
+
+				// Setup mocks for logger
+				mockLogger.EXPECT().Warn("failed to set read deadline", gomock.Any()).Times(1)
+				mockLogger.EXPECT().Warn("failed to close connection", zap.Error(errors.New("connection close error"))).Times(1)
+
+				return s, mockConn
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			s, mockConn := tt.setupMocks()
 
 			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -315,8 +342,7 @@ func Test_HandleQueries(t *testing.T) {
 				return []byte("response")
 			}
 
-			go s.HandleQueries(ctx, handler)
-			time.Sleep(100 * time.Millisecond)
+			s.HandleQueries(ctx, handler)
 
 			assert.NotNil(t, mockConn)
 		})
@@ -324,6 +350,7 @@ func Test_HandleQueries(t *testing.T) {
 }
 
 func TestHandleConnection_Timeout(t *testing.T) {
+	t.Parallel()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

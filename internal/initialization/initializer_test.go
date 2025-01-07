@@ -7,37 +7,30 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	"goVault/internal/configuration"
+	internal_mock "goVault/mocks"
+	engine_mock "goVault/mocks/core/vault/engine/in_memory"
+	network_mock "goVault/mocks/network"
 )
 
-func TestInitializerAndDatabase(t *testing.T) {
-	t.Parallel()
-
-	initializer, err := NewInitializer(&configuration.Config{
-		Network: &configuration.NetworkConfig{
-			Address: "localhost:6666",
-		},
-	})
-	require.NoError(t, err)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
-	defer cancel()
-
-	err = initializer.StartDatabase(ctx)
-	require.NoError(t, err)
-
-	cleanUp(nil) // remove log-file
-}
-
-func TestInitializerCases(t *testing.T) {
+func TestInitializerNew(t *testing.T) {
 
 	tests := map[string]struct {
 		cfg            *configuration.Config
 		expectedErr    error
 		expectedNilObj bool
 	}{
+		"successs": {
+			cfg: &configuration.Config{
+				Network: &configuration.NetworkConfig{
+					Address: "localhost:6666",
+				},
+			},
+			expectedErr:    nil,
+			expectedNilObj: false,
+		},
 		"nil cfg": {
 			cfg:            nil,
 			expectedErr:    errors.New("failed to initialize: config is invalid"),
@@ -87,7 +80,11 @@ func TestInitializerCases(t *testing.T) {
 			t.Parallel()
 
 			initializer, err := NewInitializer(test.cfg)
-			assert.Equal(t, test.expectedErr.Error(), err.Error())
+			if err != nil && test.expectedErr != nil {
+				assert.Equal(t, test.expectedErr.Error(), err.Error())
+			} else if err != nil || test.expectedErr != nil {
+				assert.Equal(t, test.expectedErr, err)
+			}
 
 			if test.expectedNilObj {
 				assert.Nil(t, initializer)
@@ -96,6 +93,78 @@ func TestInitializerCases(t *testing.T) {
 			}
 
 			cleanUp(nil) // remove log-file
+		})
+	}
+}
+
+func TestInitializerStartDatabase(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tests := []struct {
+		name        string
+		setupMocks  func() *Initializer
+		expectedErr error
+	}{
+		{
+			name: "successful",
+			setupMocks: func() *Initializer {
+				serverMock := network_mock.NewMockTCPServer(ctrl)
+				serverMock.EXPECT().HandleQueries(gomock.Any(), gomock.Any())
+
+				i := Initializer{
+					logger: internal_mock.NewMockLogger(ctrl),
+					engine: engine_mock.NewMockEngine(ctrl),
+					server: nil,
+				}
+
+				i.server = serverMock
+				return &i
+			},
+			expectedErr: nil,
+		},
+		{
+			name: "query.NewParser return error",
+			setupMocks: func() *Initializer {
+				i := Initializer{
+					logger: nil,
+					engine: engine_mock.NewMockEngine(ctrl),
+					server: network_mock.NewMockTCPServer(ctrl),
+				}
+
+				return &i
+			},
+			expectedErr: errors.New("logger is invalid"),
+		},
+		{
+			name: "vault.NewVault return error",
+			setupMocks: func() *Initializer {
+				i := Initializer{
+					logger: internal_mock.NewMockLogger(ctrl),
+					engine: nil,
+				}
+
+				return &i
+			},
+			expectedErr: errors.New("engine is invalid"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+
+			init := tt.setupMocks()
+
+			err := init.StartDatabase(ctx)
+			if err != nil && tt.expectedErr != nil {
+				assert.Equal(t, tt.expectedErr.Error(), err.Error())
+			} else if err != nil || tt.expectedErr != nil {
+				assert.Equal(t, tt.expectedErr, err)
+			}
 		})
 	}
 }

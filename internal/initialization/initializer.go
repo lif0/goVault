@@ -17,8 +17,8 @@ import (
 )
 
 type Initializer struct {
-	engine engine.Engine
 	logger internal.Logger
+	engine engine.Engine
 	server network.TCPServer
 }
 

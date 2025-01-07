@@ -5,8 +5,8 @@
 <p align="center">
 <img src="https://github.com/lif0/goVault/actions/workflows/coverallsapp.yml/badge.svg"/>
 <img src="https://goreportcard.com/badge/github.com/lif0/goVault" />
-<a href="https://coveralls.io/github/lif0/goVault" >
-    <img src="https://coveralls.io/repos/github/lif0/goVault/badge.svg?branch=main"/>
+<a href='https://coveralls.io/github/lif0/goVault?branch=main'>
+  <img src='https://coveralls.io/repos/github/lif0/goVault/badge.svg?branch=main' alt='Coverage Status' />
 </a>
 <a href="https://github.com/lif0/goVault/blob/main/LICENSE">
   <img src="https://img.shields.io/github/license/lif0/goVault.svg?logo=github&labelColor=rgb(64%2C70%2C78" />
