@@ -30,6 +30,12 @@ func TestLoad(t *testing.T) {
 					Level:  "info",
 					Output: "stdout",
 				},
+				WAL: &WALConfig{
+					FlushingBatchSize:    100,
+					FlushingBatchTimeout: "10ms",
+					MaxSegmentSize:       "10MB",
+					DataDirectory:        "/goVault/data/wal",
+				},
 			},
 		},
 		{
@@ -91,6 +97,11 @@ network:
 logging:
   level: info
   output: stdout
+wal:
+  flushing_batch_size: 100
+  flushing_batch_timeout: "10ms"
+  max_segment_size: "10MB"
+  data_directory: "/goVault/data/wal"
 `
 }
 

@@ -3,6 +3,6 @@ package vault
 import "errors"
 
 var (
-	ErrVaultNotFound      = errors.New("vault: key not found")
-	ErrVaultUnknowCommand = errors.New("vault: unknow db command")
+	ErrVaultNotFound       = errors.New("vault: key not found")
+	ErrVaultUnknownCommand = errors.New("vault: unknown db command")
 )

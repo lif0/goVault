@@ -3,14 +3,13 @@ package initialization
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
 	"goVault/internal"
 	"goVault/internal/configuration"
+	"goVault/internal/pkg/dir"
 )
 
 const (
@@ -46,7 +45,7 @@ func CreateLogger(cfg *configuration.LoggingConfig) (internal.Logger, error) {
 		}
 
 		if cfg.Output != "" {
-			err := createParentDirIfNeeded(cfg.Output)
+			err := dir.CreateParentDirIfNeedIt(cfg.Output)
 			if err != nil {
 				return nil, fmt.Errorf("failed create dir: %s", cfg.Output)
 			}
@@ -67,17 +66,4 @@ func CreateLogger(cfg *configuration.LoggingConfig) (internal.Logger, error) {
 	}
 
 	return loggerCfg.Build()
-}
-
-func createParentDirIfNeeded(filePath string) error {
-	parentDir := filepath.Dir(filePath)
-
-	if parentDir != "." {
-		err := os.MkdirAll(parentDir, os.ModePerm)
-		if err != nil {
-			return fmt.Errorf("failed to create parent directories for %s: %v", filePath, err)
-		}
-	}
-
-	return nil
 }
