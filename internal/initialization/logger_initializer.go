@@ -9,7 +9,7 @@ import (
 
 	"goVault/internal"
 	"goVault/internal/configuration"
-	"goVault/internal/pkg/dir"
+	"goVault/internal/pkg/directory"
 )
 
 const (
@@ -45,7 +45,7 @@ func CreateLogger(cfg *configuration.LoggingConfig) (internal.Logger, error) {
 		}
 
 		if cfg.Output != "" {
-			err := dir.CreateParentDirIfNeedIt(cfg.Output)
+			err := directory.TryCreateDirsByPath(cfg.Output)
 			if err != nil {
 				return nil, fmt.Errorf("failed create dir: %s", cfg.Output)
 			}

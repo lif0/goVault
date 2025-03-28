@@ -12,23 +12,17 @@ import (
 )
 
 func cleanUp(cfg *configuration.LoggingConfig) {
-	if cfg == nil {
-		parentDir := filepath.Dir(defaultOutputPath)
+	path := defaultOutputPath
 
-		if parentDir != "." {
-
-		} else {
-			_ = os.Remove(defaultOutputPath)
-		}
-	} else {
-		parentDir := filepath.Dir(cfg.Output)
-
-		if parentDir != "." {
-			_ = os.RemoveAll(parentDir)
-		} else {
-			_ = os.Remove(cfg.Output)
-		}
+	if cfg != nil {
+		path = cfg.Output
 	}
+
+	if parentDir := filepath.Dir(path); parentDir != "." {
+		path = parentDir
+	}
+
+	os.RemoveAll(path)
 }
 
 func TestCreateLogger(t *testing.T) {

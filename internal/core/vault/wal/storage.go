@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"goVault/internal/configuration"
-	"goVault/internal/pkg/dir"
+	"goVault/internal/pkg/directory"
 	"goVault/internal/pkg/unit"
 )
 
@@ -43,7 +43,7 @@ func NewWALSegment(cfg configuration.WALConfig) (*walSegment, error) {
 	}
 
 	if cfg.DataDirectory != "" {
-		err := dir.CreateParentDirIfNeedIt(cfg.DataDirectory)
+		err := directory.TryCreateDirsByPath(cfg.DataDirectory)
 		if err != nil {
 			return nil, fmt.Errorf("failed create dir: %s", cfg.DataDirectory)
 		}
