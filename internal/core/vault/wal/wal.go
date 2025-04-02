@@ -79,7 +79,6 @@ func (w *wal) Start(ctx context.Context) {
 				}
 				ticker.Reset(w.flushBatchTimeout)
 			case <-ticker.C:
-				w.logger.Debug("WAL loop: <-ticker.C")
 				w.flushBatch()
 			}
 		}
