@@ -14,10 +14,14 @@ func CreateFile(filename string) (*os.File, error) {
 	return file, err
 }
 
-func WriteFile(file *os.File, data []byte) (int, error) {
+func WriteFile(file *os.File, data []byte, newLine bool) (int, error) {
 	writtenBytes, err := file.Write(data)
 	if err != nil {
 		return 0, err
+	}
+
+	if newLine {
+		_, _ = file.Write([]byte("\n")) // TODO: a potential location for a bug
 	}
 
 	if err = file.Sync(); err != nil {

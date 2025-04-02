@@ -9,6 +9,7 @@ services:
       - "8080:7777"
     volumes:
       - ./config.yaml:/app/config.yaml:ro
-      - ./docker/log/:/goVault
+      - ./docker/log/:/goVault/log/
+      - ./docker/data/:/goVault/data/
     environment:
       - CONFIG_PATH=/app/config.yaml

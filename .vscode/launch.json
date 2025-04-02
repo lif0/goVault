@@ -12,7 +12,7 @@
             "env": {
                 "GO_ENV": "development"
             },
-            "args": ["-address=127.0.0.1:8080"]
+            "args": ["-address=127.0.0.1:7777"]
         },
         {
             "name": "Debug Server",
@@ -23,10 +23,10 @@
             "cwd": "${workspaceFolder}",
             //"console": "integratedTerminal",
             "env": {
-                "GO_ENV": "development"
+                "GO_ENV": "development",
+                "CONFIG_PATH": "${workspaceFolder}/config.yaml"
             },
             "args": []
         },
     ]
   }
-  

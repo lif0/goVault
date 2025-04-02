@@ -5,6 +5,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestLoad(t *testing.T) {
@@ -31,8 +32,8 @@ func TestLoad(t *testing.T) {
 					Output: "stdout",
 				},
 				WAL: &WALConfig{
-					FlushingBatchSize:    100,
-					FlushingBatchTimeout: "10ms",
+					FlushingBatchLength:  100,
+					FlushingBatchTimeout: time.Millisecond * 20,
 					MaxSegmentSize:       "10MB",
 					DataDirectory:        "/goVault/data/wal",
 				},
@@ -51,7 +52,7 @@ func TestLoad(t *testing.T) {
 		{
 			name:          "Read error",
 			reader:        &errorReader{},
-			expectedError: "falied to read buffer",
+			expectedError: "failed to read buffer",
 		},
 	}
 
@@ -81,7 +82,7 @@ func TestLoad(t *testing.T) {
 type errorReader struct{}
 
 func (e *errorReader) Read(p []byte) (n int, err error) {
-	return 0, errors.New("falied to read buffer")
+	return 0, errors.New("failed to read buffer")
 }
 
 // validYAML returns a valid YAML string for testing.
@@ -98,7 +99,7 @@ logging:
   level: info
   output: stdout
 wal:
-  flushing_batch_size: 100
+  flushing_batch_length: 100
   flushing_batch_timeout: "10ms"
   max_segment_size: "10MB"
   data_directory: "/goVault/data/wal"

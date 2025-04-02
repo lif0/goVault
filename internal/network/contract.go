@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"goVault/internal"
-	"goVault/internal/concurrency"
+	"goVault/internal/pkg/concurrency"
 )
 
 type TCPHandler = func(context.Context, []byte) []byte

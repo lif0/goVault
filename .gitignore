@@ -30,3 +30,9 @@ go.work.sum
 # goVault
 goVault.log
 goVault-server
+goVault-cli
+docker/
+goVault/
+goVault/log/
+goVault/logs/
+goVault/data/

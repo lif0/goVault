@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"goVault/internal"
-	"goVault/internal/concurrency"
+	"goVault/internal/pkg/concurrency"
 	internal_mock "goVault/mocks"
 	net_mock "goVault/mocks/net"
 )

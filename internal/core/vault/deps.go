@@ -15,3 +15,7 @@ type Engine interface {
 	Get(ctx context.Context, key string) (string, bool)
 	Del(ctx context.Context, key string)
 }
+
+type WAL interface {
+	Write(wal string, fCommit func()) error
+}

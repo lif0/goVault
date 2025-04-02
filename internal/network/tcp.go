@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"goVault/internal"
-	"goVault/internal/concurrency"
+	"goVault/internal/pkg/concurrency"
 )
 
 func NewTCPServer(address string, l internal.Logger, options ...TCPServerOption) (TCPServer, error) {

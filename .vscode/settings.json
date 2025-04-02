@@ -1,7 +1,10 @@
 {
     "cSpell.words": [
         "btypes",
+        "coverprofile",
+        "GOPACKAGE",
         "gopkg",
+        "mockgen",
         "stretchr"
     ]
 }

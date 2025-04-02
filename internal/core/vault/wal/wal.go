@@ -1,58 +1,37 @@
 package wal
 
 import (
-	"goVault/internal/configuration"
-	"goVault/internal/pkg/unit"
+	"context"
 	"sync"
 	"time"
-)
 
-var (
-	defaultFlushingBatchSize    = 100
-	defaultFlushingBatchTimeout = int64(200 /*ms*/)
+	"goVault/internal"
+	"goVault/internal/core/filesystem"
 )
 
 type wal struct {
+	logger internal.Logger
+
 	mu      sync.Mutex
 	data    []WALItem
 	chFlush chan []WALItem
-	walFile *walSegment
+	walFile *filesystem.Segment
 
-	flushingBatchSize     int
-	flushingBatchTimeout  int64
-	flushingBatchLastTime time.Time
+	maxBatchSize      int
+	flushBatchTimeout time.Duration
 }
 
-func New(cfg configuration.WALConfig) (WAL, error) {
-	flushingBatchSize := defaultFlushingBatchSize
-	flushingBatchTimeout := defaultFlushingBatchTimeout
-
-	if cfg.FlushingBatchSize == 0 {
-		flushingBatchSize = cfg.FlushingBatchSize
-	}
-
-	if cfg.FlushingBatchTimeout != "" {
-		fbt, err := unit.ParseDuration(cfg.FlushingBatchTimeout)
-		if err != nil {
-			return nil, err
-		}
-
-		flushingBatchTimeout = fbt
-	}
-
-	walFile, err := NewWALSegment(cfg)
-	if err != nil {
-		return nil, err
-	}
-
+func New(segment *filesystem.Segment, flushingBatchLength int, flushingBatchTimeout time.Duration, logger internal.Logger) (WAL, error) {
 	service := &wal{
-		mu:      sync.Mutex{},
-		data:    make([]WALItem, 0, flushingBatchSize),
-		chFlush: make(chan []WALItem, 1), // TODO: cover metric size buffer
-		walFile: walFile,
+		logger: logger,
 
-		flushingBatchSize:    flushingBatchSize,
-		flushingBatchTimeout: flushingBatchTimeout,
+		mu:      sync.Mutex{},
+		data:    make([]WALItem, 0, flushingBatchLength),
+		chFlush: make(chan []WALItem, 1), // TODO: cover metric size buffer
+		walFile: segment,
+
+		maxBatchSize:      flushingBatchLength,
+		flushBatchTimeout: flushingBatchTimeout,
 	}
 
 	return service, nil
@@ -61,9 +40,9 @@ func New(cfg configuration.WALConfig) (WAL, error) {
 func (w *wal) Write(wal string, fCommit func()) error {
 	w.mu.Lock()
 
-	if len(w.data) >= w.flushingBatchSize {
+	if len(w.data) >= w.maxBatchSize {
 		w.chFlush <- w.data
-		w.data = make([]WALItem, 0, w.flushingBatchSize)
+		w.data = make([]WALItem, 0, w.maxBatchSize)
 		w.mu.Unlock()
 		return nil
 	}
@@ -73,11 +52,49 @@ func (w *wal) Write(wal string, fCommit func()) error {
 	return nil
 }
 
-func (w *wal) runFlushHandler() {
-	for wals := range w.chFlush {
-		for _, v := range wals {
-			w.walFile.Write([]byte(v.value))
-			v.fCommit()
+func (w *wal) Start(ctx context.Context) {
+	go func() {
+		ticker := time.NewTicker(w.flushBatchTimeout)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				w.logger.Debug("WAL loop: call ctx.Done()")
+				w.flushBatch()
+				return
+			default:
+			}
+
+			select {
+			case <-ctx.Done():
+				w.logger.Debug("WAL loop: call ctx.Done()")
+				w.flushBatch()
+				return
+			case batch := <-w.chFlush:
+				w.logger.Debug("WAL loop: <-w.chFlush")
+				for _, v := range batch {
+					w.walFile.Write([]byte(v.value))
+					v.fCommit()
+				}
+				ticker.Reset(w.flushBatchTimeout)
+			case <-ticker.C:
+				w.logger.Debug("WAL loop: <-ticker.C")
+				w.flushBatch()
+			}
 		}
+	}()
+}
+
+func (w *wal) flushBatch() {
+	var batch []WALItem
+
+	w.mu.Lock()
+	batch = w.data
+	w.data = make([]WALItem, 0, w.maxBatchSize)
+	w.mu.Unlock()
+
+	if len(batch) != 0 {
+		w.chFlush <- batch
 	}
 }

@@ -34,10 +34,10 @@ type LoggingConfig struct {
 }
 
 type WALConfig struct {
-	FlushingBatchSize    int    `yaml:"flushing_batch_size"`
-	FlushingBatchTimeout string `yaml:"flushing_batch_timeout"`
-	MaxSegmentSize       string `yaml:"max_segment_size"`
-	DataDirectory        string `yaml:"data_directory"`
+	FlushingBatchLength  int           `yaml:"flushing_batch_length"`
+	FlushingBatchTimeout time.Duration `yaml:"flushing_batch_timeout"`
+	MaxSegmentSize       string        `yaml:"max_segment_size"`
+	DataDirectory        string        `yaml:"data_directory"`
 }
 
 func Load(reader io.Reader) (*Config, error) {
@@ -47,7 +47,7 @@ func Load(reader io.Reader) (*Config, error) {
 
 	data, err := io.ReadAll(reader)
 	if err != nil {
-		return nil, errors.New("falied to read buffer")
+		return nil, errors.New("failed to read buffer")
 	}
 
 	var config Config

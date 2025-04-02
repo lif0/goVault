@@ -53,7 +53,7 @@ logging:
   output: "./goVault/log/output.log"
   stdout: false
 wal:
-  flushing_batch_size: 100
+  flushing_batch_length: 100
   flushing_batch_timeout: "10ms"
   max_segment_size: "10MB"
   data_directory: "./goVault/data/wal"

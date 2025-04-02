@@ -13,6 +13,9 @@ run-server: build-server
 run-server-with-config: build-server
 	CONFIG_PATH=config.yml ./${SERVER_APP_NAME}
 
+run-server-in-docker:
+	docker build . && docker compose up
+
 run-cli: build-cli
 	./${CLI_APP_NAME} $(ARGS)
 

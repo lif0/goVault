@@ -23,16 +23,16 @@ func NewEngine(logger internal.Logger) (engine.Engine, error) {
 
 func (e *service) Set(ctx context.Context, key, value string) {
 	e.vault.Set(key, value)
-	e.logger.Debug("successfull set query")
+	e.logger.Debug("successful set query")
 }
 
 func (e *service) Get(ctx context.Context, key string) (string, bool) {
 	v, ok := e.vault.Get(key)
-	e.logger.Debug("successfull get query")
+	e.logger.Debug("successful get query")
 	return v, ok
 }
 
 func (e *service) Del(ctx context.Context, key string) {
 	e.vault.Del(key)
-	e.logger.Debug("successfull del query")
+	e.logger.Debug("successful del query")
 }
