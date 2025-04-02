@@ -43,7 +43,10 @@ func (v *vault) Set(ctx context.Context, key, value string) error {
 
 	if v.wal != nil {
 		ch := make(chan struct{})
-		v.wal.Write(fmt.Sprintf("SET %s %s", key, value), func() { ch <- struct{}{} })
+		if err := v.wal.Write(fmt.Sprintf("SET %s %s", key, value), func() { ch <- struct{}{} }); err != nil {
+			return err // TODO: MUST CHECK
+		}
+
 		<-ch
 	}
 
@@ -71,7 +74,10 @@ func (v *vault) Del(ctx context.Context, key string) error {
 
 	if v.wal != nil {
 		ch := make(chan struct{})
-		v.wal.Write(fmt.Sprintf("DEL %s", key), func() { ch <- struct{}{} })
+		if err := v.wal.Write(fmt.Sprintf("DEL %s", key), func() { ch <- struct{}{} }); err != nil {
+			return err // TODO: MUST CHECK
+		}
+
 		<-ch
 	}
 

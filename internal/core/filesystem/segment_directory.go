@@ -11,14 +11,16 @@ type SegmentsDirectory struct {
 	directory string
 }
 
-func NewSegmentsDirectory(directoryPath string) *SegmentsDirectory {
+func NewSegmentsDirectory(directoryPath string) (*SegmentsDirectory, error) {
 	if !directory.DirectoryExists(directoryPath) {
-		directory.TryCreateDirsByPath(directoryPath)
+		if err := directory.TryCreateDirsByPath(directoryPath); err != nil {
+			return nil, err
+		}
 	}
 
 	return &SegmentsDirectory{
 		directory: directoryPath,
-	}
+	}, nil
 }
 
 func (d *SegmentsDirectory) ForEach(action func([]byte) error) error {

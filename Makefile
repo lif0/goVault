@@ -19,6 +19,9 @@ run-server-in-docker:
 run-cli: build-cli
 	./${CLI_APP_NAME} $(ARGS)
 
+linter:
+	golangci-lint run
+
 test:
 	go test ./...
 

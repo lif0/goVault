@@ -79,24 +79,37 @@ func TestDirectoryExists(t *testing.T) {
 
 	tests := map[string]struct {
 		path     string
-		init     func()
+		init     func() error
 		expected bool
 	}{
 		"dir is exists": {
-			path:     "logs/logs.log",
-			init:     func() { TryCreateDirsByPath("logs/logs.log") },
+			path: "logs/logs.log",
+			init: func() error {
+				err := TryCreateDirsByPath("logs/logs.log")
+				if err != nil {
+					return err
+				}
+				return nil
+			},
 			expected: true,
 		},
 
 		"dir is not exists": {
 			path:     "some_pth/logs.log",
-			init:     func() {},
+			init:     func() error { return nil },
 			expected: false,
 		},
 
 		"with error": {
-			path:     "/mnt/nonexistent_dir/test.log",
-			init:     func() { TryCreateDirsByPath("/mnt/nonexistent_dir/test.log") },
+			path: "/mnt/nonexistent_dir/test.log",
+			init: func() error {
+				err := TryCreateDirsByPath("/mnt/nonexistent_dir/test.log")
+
+				if err != nil {
+					return err
+				}
+				return nil
+			},
 			expected: false,
 		},
 	}
@@ -107,7 +120,8 @@ func TestDirectoryExists(t *testing.T) {
 
 			t.Parallel()
 
-			test.init()
+			err := test.init()
+			assert.Nil(t, err)
 			result := DirectoryExists(test.path)
 			assert.Equal(t, test.expected, result)
 		})

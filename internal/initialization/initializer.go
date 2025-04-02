@@ -80,10 +80,6 @@ func (i *Initializer) StartDatabase(ctx context.Context) error {
 		return err
 	}
 
-	if i.wal != nil {
-
-	}
-
 	group, groupCtx := errgroup.WithContext(ctx)
 
 	if i.wal != nil {

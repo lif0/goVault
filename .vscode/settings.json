@@ -5,6 +5,7 @@
         "dylib",
         "GOPACKAGE",
         "gopkg",
+        "govault",
         "mockgen",
         "stretchr"
     ]

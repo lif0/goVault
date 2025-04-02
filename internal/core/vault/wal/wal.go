@@ -5,6 +5,8 @@ import (
 	"sync"
 	"time"
 
+	"go.uber.org/zap"
+
 	"goVault/internal"
 	"goVault/internal/core/filesystem"
 )
@@ -74,7 +76,11 @@ func (w *wal) Start(ctx context.Context) {
 			case batch := <-w.chFlush:
 				w.logger.Debug("WAL loop: <-w.chFlush")
 				for _, v := range batch {
-					w.walFile.Write([]byte(v.value))
+					err := w.walFile.Write([]byte(v.value))
+					if err != nil {
+						w.logger.Error("WAL: write query to file is failed", zap.Any("err", err))
+						continue // TODO: MUST CHECK
+					}
 					v.fCommit()
 				}
 				ticker.Reset(w.flushBatchTimeout)

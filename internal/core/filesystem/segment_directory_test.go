@@ -25,12 +25,14 @@ func TestSegmentsDirectoryDirectoryNotExists(t *testing.T) {
 	segmentsCount := 0
 	expectedSegmentsCount := 3
 
-	segmentDir := NewSegmentsDirectory("data/wal")
+	segmentDir, err := NewSegmentsDirectory("data/wal")
+	assert.Nil(t, err)
+
 	generateTestData(segmentDir.directory+"/"+t.Name()+"1.txt", 2)
 	generateTestData(segmentDir.directory+"/"+t.Name()+"2.txt", 2)
 	generateTestData(segmentDir.directory+"/"+t.Name()+"3.txt", 2)
 
-	err := segmentDir.ForEach(func(data []byte) error {
+	err = segmentDir.ForEach(func(data []byte) error {
 		assert.True(t, len(data) != 0)
 		segmentsCount++
 		return nil
@@ -48,12 +50,14 @@ func TestSegmentsDirectoryForEach(t *testing.T) {
 	segmentsCount := 0
 	expectedSegmentsCount := 3
 
-	segmentDir := NewSegmentsDirectory("data")
+	segmentDir, err := NewSegmentsDirectory("data")
+	assert.Nil(t, err)
+
 	generateTestData(segmentDir.directory+"/"+t.Name()+"1.txt", 2)
 	generateTestData(segmentDir.directory+"/"+t.Name()+"2.txt", 2)
 	generateTestData(segmentDir.directory+"/"+t.Name()+"3.txt", 2)
 
-	err := segmentDir.ForEach(func(data []byte) error {
+	err = segmentDir.ForEach(func(data []byte) error {
 		assert.True(t, len(data) != 0)
 		segmentsCount++
 		return nil
@@ -68,12 +72,14 @@ func TestSegmentsDirectoryForEach(t *testing.T) {
 func TestSegmentsDirectoryForEachWithBreak(t *testing.T) {
 	t.Parallel()
 
-	segmentDir := NewSegmentsDirectory("test_data")
+	segmentDir, err := NewSegmentsDirectory("test_data")
+	assert.Nil(t, err)
+
 	generateTestData(segmentDir.directory+"/"+t.Name()+"1.txt", 2)
 	generateTestData(segmentDir.directory+"/"+t.Name()+"2.txt", 2)
 	generateTestData(segmentDir.directory+"/"+t.Name()+"3.txt", 2)
 
-	err := segmentDir.ForEach(func([]byte) error {
+	err = segmentDir.ForEach(func([]byte) error {
 		return errors.New("error")
 	})
 
@@ -86,8 +92,8 @@ func generateTestData(pathWithFile string, countLine int) {
 	file, _ := os.Create(pathWithFile)
 	for i := 1; i <= countLine; i++ {
 		line := fmt.Sprintf("some data %d\n", i)
-		file.WriteString(line)
+		_, _ = file.WriteString(line)
 	}
-	file.Sync()
-	file.Close()
+	_ = file.Sync()
+	_ = file.Close()
 }
