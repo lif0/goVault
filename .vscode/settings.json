@@ -3,6 +3,7 @@
         "btypes",
         "coverprofile",
         "dylib",
+        "gomock",
         "GOPACKAGE",
         "gopkg",
         "govault",

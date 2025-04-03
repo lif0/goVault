@@ -40,11 +40,12 @@ func TestSegmentWrite(t *testing.T) {
 	err = segment.Write([]byte("ccccc"))
 	require.NoError(t, err)
 
-	stat, err := os.Stat(testWALDirectory + "/1000.wal")
+	stat, err := os.Stat(testWALDirectory + "/wal_1000.log")
 	require.NoError(t, err)
-	assert.Equal(t, int64(10), stat.Size())
+	expected := 10 + 1 //1 - byte for \n
+	assert.Equal(t, int64(expected), stat.Size())
 
-	stat, err = os.Stat(testWALDirectory + "/2000.wal")
+	stat, err = os.Stat(testWALDirectory + "/wal_2000.log")
 	require.NoError(t, err)
 	assert.Equal(t, int64(5), stat.Size())
 }

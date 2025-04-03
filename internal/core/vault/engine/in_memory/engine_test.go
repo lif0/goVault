@@ -34,7 +34,7 @@ func TestService_Set(t *testing.T) {
 	ctx := context.Background()
 
 	// Expect logger to log a debug message for "Set" operation
-	logger.EXPECT().Debug("successfull set query").Times(1)
+	logger.EXPECT().Debug("successful set query").Times(1)
 
 	eng.Set(ctx, "key1", "value1")
 

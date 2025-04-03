@@ -106,9 +106,11 @@ func (s *server) handleConnection(ctx context.Context, connection net.Conn, hand
 				zap.Error(err),
 			)
 			break
+
 		} else if count == s.bufferSize {
 			s.logger.Warn("small buffer size", zap.Int("buffer_size", s.bufferSize))
 			break
+
 		} else if count == 0 {
 			s.logger.Debug("request query is empty", zap.Int("request_query_size", count))
 			break

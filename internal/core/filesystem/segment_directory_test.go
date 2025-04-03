@@ -50,7 +50,7 @@ func TestSegmentsDirectoryForEach(t *testing.T) {
 	segmentsCount := 0
 	expectedSegmentsCount := 3
 
-	segmentDir, err := NewSegmentsDirectory("data")
+	segmentDir, err := NewSegmentsDirectory(t.TempDir())
 	assert.Nil(t, err)
 
 	generateTestData(segmentDir.directory+"/"+t.Name()+"1.txt", 2)

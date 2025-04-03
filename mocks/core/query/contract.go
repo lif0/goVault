@@ -20,6 +20,7 @@ import (
 type MockParser struct {
 	ctrl     *gomock.Controller
 	recorder *MockParserMockRecorder
+	isgomock struct{}
 }
 
 // MockParserMockRecorder is the mock recorder for MockParser.
@@ -40,16 +41,16 @@ func (m *MockParser) EXPECT() *MockParserMockRecorder {
 }
 
 // Transition mocks base method.
-func (m *MockParser) Transition(arg0 string) (*query.Query, error) {
+func (m *MockParser) Transition(in string) (*query.Query, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Transition", arg0)
+	ret := m.ctrl.Call(m, "Transition", in)
 	ret0, _ := ret[0].(*query.Query)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Transition indicates an expected call of Transition.
-func (mr *MockParserMockRecorder) Transition(arg0 any) *gomock.Call {
+func (mr *MockParserMockRecorder) Transition(in any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transition", reflect.TypeOf((*MockParser)(nil).Transition), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transition", reflect.TypeOf((*MockParser)(nil).Transition), in)
 }

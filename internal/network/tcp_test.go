@@ -223,6 +223,36 @@ func Test_HandleQueries(t *testing.T) {
 			},
 		},
 		{
+			name: "conn.Read count zero size without error",
+			setupMocks: func() (*server, net.Conn) {
+				mockLogger := internal_mock.NewMockLogger(ctrl)
+				mockListener := net_mock.NewMockListener(ctrl)
+				mockConn := net_mock.NewMockConn(ctrl)
+
+				bufferSize := 1024
+				s := &server{
+					logger:     mockLogger,
+					listener:   mockListener,
+					bufferSize: bufferSize,
+					semaphore:  concurrency.NewSemaphore(1),
+				}
+
+				// Setup mocks for listener
+				mockListener.EXPECT().Accept().Return(mockConn, nil).Times(1)
+				mockListener.EXPECT().Accept().Return(nil, net.ErrClosed).Times(1)
+				mockListener.EXPECT().Close().Return(nil).Times(1)
+
+				// Setup mocks for connection
+				mockConn.EXPECT().Read(gomock.Any()).Return(0, nil).Times(1)
+				mockConn.EXPECT().Close().Return(nil).Times(1)
+
+				// Setup mocks for logger
+				mockLogger.EXPECT().Debug("request query is empty", zap.Int("request_query_size", 0)).Times(1)
+
+				return s, mockConn
+			},
+		},
+		{
 			name: "conn.SetWriteDeadline returns an error",
 			setupMocks: func() (*server, net.Conn) {
 				mockLogger := internal_mock.NewMockLogger(ctrl)
@@ -245,7 +275,7 @@ func Test_HandleQueries(t *testing.T) {
 				// Setup mocks for connection
 				mockConn.EXPECT().SetReadDeadline(gomock.Any()).Return(nil).Times(1)
 				mockConn.EXPECT().SetWriteDeadline(gomock.Any()).Return(errors.New("write deadline error")).Times(1)
-				mockConn.EXPECT().Read(gomock.Any()).Times(1)
+				mockConn.EXPECT().Read(gomock.Any()).Return(10, nil).Times(1)
 				mockConn.EXPECT().Close().Times(1)
 
 				// Setup mocks for logger
@@ -278,7 +308,7 @@ func Test_HandleQueries(t *testing.T) {
 				mockAddr.EXPECT().String().Return("127.0.0.1:12345").Times(1)
 
 				// Setup mocks for connection
-				mockConn.EXPECT().Read(gomock.Any()).Times(1)
+				mockConn.EXPECT().Read(gomock.Any()).Return(10, nil).Times(1)
 				mockConn.EXPECT().Write(gomock.Any()).Return(0, errors.New("write error")).Times(1)
 				mockConn.EXPECT().RemoteAddr().Return(mockAddr).Times(1)
 				mockConn.EXPECT().Close().Return(nil).Times(1)
@@ -351,6 +381,7 @@ func Test_HandleQueries(t *testing.T) {
 
 func TestHandleConnection_Timeout(t *testing.T) {
 	t.Parallel()
+
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 

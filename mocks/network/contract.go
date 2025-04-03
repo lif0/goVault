@@ -20,6 +20,7 @@ import (
 type MockTCPServer struct {
 	ctrl     *gomock.Controller
 	recorder *MockTCPServerMockRecorder
+	isgomock struct{}
 }
 
 // MockTCPServerMockRecorder is the mock recorder for MockTCPServer.
@@ -40,13 +41,13 @@ func (m *MockTCPServer) EXPECT() *MockTCPServerMockRecorder {
 }
 
 // HandleQueries mocks base method.
-func (m *MockTCPServer) HandleQueries(arg0 context.Context, arg1 func(context.Context, []byte) []byte) {
+func (m *MockTCPServer) HandleQueries(ctx context.Context, handler func(context.Context, []byte) []byte) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleQueries", arg0, arg1)
+	m.ctrl.Call(m, "HandleQueries", ctx, handler)
 }
 
 // HandleQueries indicates an expected call of HandleQueries.
-func (mr *MockTCPServerMockRecorder) HandleQueries(arg0, arg1 any) *gomock.Call {
+func (mr *MockTCPServerMockRecorder) HandleQueries(ctx, handler any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleQueries", reflect.TypeOf((*MockTCPServer)(nil).HandleQueries), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleQueries", reflect.TypeOf((*MockTCPServer)(nil).HandleQueries), ctx, handler)
 }

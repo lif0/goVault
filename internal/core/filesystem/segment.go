@@ -30,7 +30,8 @@ func (s *Segment) Write(data []byte) error {
 		}
 	}
 
-	writtenBytes, err := WriteFile(s.file, data, true)
+	isNewLine := s.segmentSize > 0
+	writtenBytes, err := WriteFile(s.file, data, isNewLine)
 	if err != nil {
 		return fmt.Errorf("failed to write data to segment file: %w", err)
 	}

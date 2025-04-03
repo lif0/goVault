@@ -40,13 +40,13 @@ func TestTryCreateDirsByPath(t *testing.T) {
 		"path with rw file system with file": {
 			path: "/mnt/nonexistent_dir/test.log",
 
-			expectedErr: errors.New("failed to create parent directories for /mnt/nonexistent_dir: mkdir /mnt: read-only file system"),
+			expectedErr: errors.New("failed to create parent directories for /mnt/nonexistent_dir: mkdir /mnt/nonexistent_dir: permission denied"),
 		},
 
 		"path with rw file system": {
 			path: "/mnt/nonexistent_dir",
 
-			expectedErr: errors.New("failed to create parent directories for /mnt/nonexistent_dir: mkdir /mnt: read-only file system"),
+			expectedErr: errors.New("failed to create parent directories for /mnt/nonexistent_dir: mkdir /mnt/nonexistent_dir: permission denied"),
 		},
 
 		"path with solo-directory": {
@@ -83,14 +83,8 @@ func TestDirectoryExists(t *testing.T) {
 		expected bool
 	}{
 		"dir is exists": {
-			path: "logs/logs.log",
-			init: func() error {
-				err := TryCreateDirsByPath("logs/logs.log")
-				if err != nil {
-					return err
-				}
-				return nil
-			},
+			path:     "logs/logs.log",
+			init:     func() error { return TryCreateDirsByPath("logs/logs.log") },
 			expected: true,
 		},
 
@@ -103,11 +97,7 @@ func TestDirectoryExists(t *testing.T) {
 		"with error": {
 			path: "/mnt/nonexistent_dir/test.log",
 			init: func() error {
-				err := TryCreateDirsByPath("/mnt/nonexistent_dir/test.log")
-
-				if err != nil {
-					return err
-				}
+				_ = TryCreateDirsByPath("/mnt/nonexistent_dir/test.log")
 				return nil
 			},
 			expected: false,
@@ -116,9 +106,9 @@ func TestDirectoryExists(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			defer cleanUp(test.path)
-
 			t.Parallel()
+
+			defer cleanUp(test.path)
 
 			err := test.init()
 			assert.Nil(t, err)

@@ -31,7 +31,14 @@ jobs:
           docker tag ${{ secrets.DOCKER_USERNAME }}/govault:${VERSION} \
                      ${{ secrets.DOCKER_USERNAME }}/govault:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/govault:latest
-
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/govault:latest
+          
+#      - name: Update Docker Hub description
+#          uses: peter-evans/dockerhub-description@v2
+#          with:
+#            username: ${{ secrets.DOCKER_USERNAME }}
+#            password: ${{ secrets.DOCKER_PASSWORD }}
+#            repository: ${{ secrets.DOCKER_USERNAME }}/govault
+#            # Короткое описание опционально (short_description)
+#            # short_description: "Мой сервис govault"
+#            # Подробное описание берём из README.md (можно указать любой другой файл)
+#            full_description: README.md
